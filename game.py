@@ -1,45 +1,61 @@
 from typing import Tuple
 import pygame
-from pygame import Rect
+from object import Object
 
-class Game:
-	name: str
-	display = pygame.display
-	window: pygame.display
-	running: bool = False
+from render import render_obj, render_objects
 
-	def __init__(self, name: str, window_size: Tuple[int, int]) -> None:
-		self.name = name
-		self.window = pygame.display.set_mode(size=window_size)
+name: str
+window: pygame.display
+__is_initialized: bool = False
+__is_running: bool = False
 
-	def run(self) -> None:
-		pygame.init()
-		pygame.font.init()
-		self.display.init()
+def init(game_name: str, window_size: Tuple[int, int]) -> None:
+	global name, window, __is_initialized
 
-		print(self.name)
+	pygame.init()
+	pygame.font.init()
+	pygame.display.init()
 
-		self.running = True
-		self.loop()
+	name = game_name
+	window = pygame.display.set_mode(size=window_size)
+	__is_initialized = True
 
-	def handle_event(self) -> None:
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				self.running = False
+def run() -> None:
+	global name, __is_running, __is_initialized
 
-	def loop(self) -> None:
-		rect = Rect((10.0, 10.0), (10.0, 10.0))
-		pygame.draw.rect(surface=self.window, rect=rect, color=(255, 0, 255))
+	if not __is_initialized:
+		raise Exception("Game should be initialized first. Call \"run\"!")
 
-		while (self.running):
-			# handle events: keyboard, mouse, etc...
-			self.handle_event()
+	print(name)
 
-			# process physics
+	__is_running = True
+	__loop()
 
-			# check collisions
+def __handle_event() -> None:
+	global __is_running
 
-			# re-render objects
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+			__is_running = False
+		elif event.type == pygame.KEYDOWN:
+			render_obj(Object((10.0, 12.0), (25.0, 12.0), (255, 0, 255)))
+		
+def __loop() -> None:
+	global __is_running
 
-			# update screen
-			self.display.flip()
+	while (__is_running):
+		# handle events: keyboard, mouse, etc...
+		__handle_event()
+
+		# process physics
+
+		# check collisions
+
+		#clean up window
+		window.fill((0, 0, 0))
+
+		# re-render objects
+		render_objects()
+
+		# update screen
+		pygame.display.flip()

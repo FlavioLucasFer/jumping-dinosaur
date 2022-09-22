@@ -1,7 +1,7 @@
-from game import Game
+import game
 
-game = Game(
-	name='jumping-dinosaur',
+game.init(
+	game_name='jumping-dinosaur',
 	window_size=(800, 600),
 )
 game.run()
