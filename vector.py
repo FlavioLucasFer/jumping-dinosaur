@@ -1,11 +1,13 @@
-
-import math
 from __future__ import annotations
+import math
 
 class Vector:
     i: float
     j: float
     k: float
+
+    def __init__(self, i: float, j: float, k: float) -> None:
+        self.set(i, j, k)
 
     def copy (self, vector: Vector) -> None:
         self.i = vector.i
