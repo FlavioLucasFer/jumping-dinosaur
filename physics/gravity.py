@@ -29,4 +29,3 @@ def g_to_mps2(g: float) -> float:
 
 def mps2_tp_g(mps: float) -> float:
     return mps / __G_STANDARD_VALUE
-
