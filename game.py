@@ -1,8 +1,8 @@
-from typing import Tuple
+from typing import Tuple, List
+from uuid import UUID
 import pygame
-from object import Object
 
-from render import render_obj, render_objects
+from object import Object
 
 name: str
 window: pygame.display
@@ -10,6 +10,7 @@ __is_initialized: bool = False
 __is_running: bool = False
 __clock = pygame.time.Clock()
 __elapsed: float
+__objects: List[Object] = []
 framerate: int = 0
 
 
@@ -37,6 +38,40 @@ def run() -> None:
     __loop()
 
 
+def render_obj(object: Object) -> Object:
+    global __objects
+
+    __objects.append(object)
+    return object
+
+
+def unrender_obj(object: Object) -> Object:
+    global __objects
+
+    __objects.remove(object)
+    return object
+
+
+def unrender_obj(uuid: UUID) -> Object:
+    global __objects
+
+    for object in __objects:
+        if object.uuid == uuid:
+            __objects.remove(object)
+            return object
+
+
+def rendered_object() -> int:
+    global __objects
+
+    return len(__objects)
+
+
+def __render_objects():
+    for object in __objects:
+        object.render()
+
+
 def __handle_event() -> None:
     global __is_running
 
@@ -44,18 +79,31 @@ def __handle_event() -> None:
         if event.type == pygame.QUIT:
             __is_running = False
         elif event.type == pygame.KEYDOWN:
-            render_obj(Object((10.0, 12.0), (25.0, 12.0), (255, 0, 255)))
+            print('KEYDOWN')
 
 
 def __framerate_counter() -> None:
     global __clock, __elapsed, framerate
 
-    __elapsed = __clock.tick_busy_loop(framerate)
+    __elapsed = __clock.tick_busy_loop(framerate) / 1000.0
     fps = int(__clock.get_fps())
     print('FPS: ', fps)
 
 
-@property
+def __reset_resulting_force() -> None:
+    global __objects
+
+    for object in __objects:
+        object.resulting_force.reset()
+
+
+def __process_objects_physics() -> None:
+    global __objects
+
+    for object in __objects:
+        object.physics()
+
+
 def elapsed() -> int:
     global __elapsed
 
@@ -63,9 +111,12 @@ def elapsed() -> int:
 
 
 def __loop() -> None:
-    global __is_running
+    global __is_running, __elapsed
 
     while (__is_running):
+        # reset objects' resulting force
+        __reset_resulting_force()
+
         # handle time since the last tick and count fps
         __framerate_counter()
 
@@ -73,6 +124,7 @@ def __loop() -> None:
         __handle_event()
 
         # process physics
+        __process_objects_physics()
 
         # check collisions
 
@@ -80,7 +132,9 @@ def __loop() -> None:
         window.fill((0, 0, 0))
 
         # re-render objects
-        render_objects()
+        __render_objects()
 
         # update screen
         pygame.display.flip()
+
+    pygame.quit()
