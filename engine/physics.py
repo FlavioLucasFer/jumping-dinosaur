@@ -1,5 +1,33 @@
 from __future__ import annotations
+from enum import Enum
 import math
+
+class SolarSystemGravityAccelerations(Enum):
+	EARTH = 1.0
+	MOON = 0.165
+	SUN = 28.02
+	MERCURY = 0.377
+	VENUS = 0.905
+	MARS = 0.379
+	JUPITER = 2.528
+	SATURN = 1.065
+	URANUS = 0.886
+	NEPTUNE = 1.137
+	PLUTO = 0.063
+
+
+class Gravity:
+	__g_standard_value = 9.0
+
+	@property
+	def G_STANDARD_VALUE() -> float:
+		return Gravity.__g_standard_value
+
+	def g_to_mps2(g: float) -> float:
+		return Gravity.G_STANDARD_VALUE * g
+
+	def mps2_tp_g(mps: float) -> float:
+		return mps / Gravity.G_STANDARD_VALUE
 
 
 class Vector:
@@ -96,3 +124,38 @@ class Vector:
 		p /= vector2.module()
 
 		return p
+
+
+def uniformly_variable_motion(
+		S0: float,
+		V0: float,
+		a: float,
+		t: float) -> float:
+	"""
+	Calculate uniformly variable motion
+	
+	S = S0 + V0.t + (a.t²) / 2
+	Args:
+		S0 (float): initial position
+		V0 (float): initial velocity
+		a (float): acceleration
+		t (float): time
+	Returns
+		float: uniformly variable motion result
+	"""
+	# S = S0 + V0.t + (a.t²) / 2
+	return S0 + V0 * t + (a * t ** 2) / 2.0
+
+
+def weight_calc(a: float, m: float) -> float:
+	return a * m
+
+
+def weight_mass(
+		f: float,
+		a: float = SolarSystemGravityAccelerations.EARTH.value) -> float:
+	return f / a
+
+
+def weight_accrl(f: float, m: float) -> float:
+	return f / m
