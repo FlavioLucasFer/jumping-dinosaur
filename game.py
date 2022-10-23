@@ -1,140 +1,39 @@
-from typing import Tuple, List
-from uuid import UUID
-import pygame
+from pygame import display
 
-from object import Object
-
-name: str
-window: pygame.display
-__is_initialized: bool = False
-__is_running: bool = False
-__clock = pygame.time.Clock()
-__elapsed: float
-__objects: List[Object] = []
-framerate: int = 0
+from engine.game import Game as EngineGame, Clock
 
 
-def init(game_name: str, window_size: Tuple[int, int]) -> None:
-    global name, window, __is_initialized
+class Game:
+	__engine_game = EngineGame('Jumping Dinosaur')
+	__is_running = False
+	__clock = Clock()
+	__FRAMERATE = 0
 
-    pygame.init()
-    pygame.font.init()
-    pygame.display.init()
+	def run() -> None:
+		Game.__is_running = True
+		Game.__engine_game.init()
+		Game.__loop()
+		Game.__quit()
 
-    name = game_name
-    window = pygame.display.set_mode(size=window_size)
-    __is_initialized = True
+	def __loop() -> None:
+		while Game.__is_running:
+			Game.__framerate_manager()
+			Game.__event_handler()
+			Game.__render_objects()
 
+	def __render_objects() -> None:
+		Game.__engine_game.window.fill((0, 0, 0))
+		
+		# object rendering goes here
+		
+		display.flip()
 
-def run() -> None:
-    global name, __is_running, __is_initialized
+	def __framerate_manager() -> None:
+		Game.__clock.tick_busy_loop(Game.__FRAMERATE)
 
-    if not __is_initialized:
-        raise Exception("Game should be initialized first. Call \"run\"!")
+	def __event_handler() -> None:
+		pass
 
-    print(name)
-
-    __is_running = True
-    __loop()
-
-
-def render_obj(object: Object) -> Object:
-    global __objects
-
-    __objects.append(object)
-    return object
-
-
-def unrender_obj(object: Object) -> Object:
-    global __objects
-
-    __objects.remove(object)
-    return object
-
-
-def unrender_obj(uuid: UUID) -> Object:
-    global __objects
-
-    for object in __objects:
-        if object.uuid == uuid:
-            __objects.remove(object)
-            return object
-
-
-def rendered_object() -> int:
-    global __objects
-
-    return len(__objects)
-
-
-def __render_objects():
-    for object in __objects:
-        object.render()
-
-
-def __handle_event() -> None:
-    global __is_running
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            __is_running = False
-        elif event.type == pygame.KEYDOWN:
-            print('KEYDOWN')
-
-
-def __framerate_counter() -> None:
-    global __clock, __elapsed, framerate
-
-    __elapsed = __clock.tick_busy_loop(framerate) / 1000.0
-    fps = int(__clock.get_fps())
-    print('FPS: ', fps)
-
-
-def __reset_resulting_force() -> None:
-    global __objects
-
-    for object in __objects:
-        object.resulting_force.reset()
-
-
-def __process_objects_physics() -> None:
-    global __objects
-
-    for object in __objects:
-        object.physics()
-
-
-def elapsed() -> int:
-    global __elapsed
-
-    return __elapsed
-
-
-def __loop() -> None:
-    global __is_running, __elapsed
-
-    while (__is_running):
-        # reset objects' resulting force
-        __reset_resulting_force()
-
-        # handle time since the last tick and count fps
-        __framerate_counter()
-
-        # handle events: keyboard, mouse, etc...
-        __handle_event()
-
-        # process physics
-        __process_objects_physics()
-
-        # check collisions
-
-        # clean up window
-        window.fill((0, 0, 0))
-
-        # re-render objects
-        __render_objects()
-
-        # update screen
-        pygame.display.flip()
-
-    pygame.quit()
+	def __quit() -> None:
+		Game.__is_running = False
+		Game.__engine_game.quit()
