@@ -1,10 +1,3 @@
-from unicodedata import name
-from engine.game import Game
+from game import Game
 
-game = Game('jumping dinosaur')
-game.init()
-
-while True:
-    print('running')
-
-game.quit()
+Game.run()

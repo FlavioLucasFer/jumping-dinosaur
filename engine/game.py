@@ -1,9 +1,10 @@
 from __future__ import annotations
 from typing import Tuple
 from enum import Enum
+from unicodedata import name
 
 from pygame import Surface, init as init_pygame, quit as pygame_quit
-from pygame.display import init as init_display, set_mode as display_set_mode
+from pygame.display import init as init_display, set_mode as display_set_mode, set_caption
 from pygame.font import init as init_font
 from pygame.time import Clock as PyClock
 
@@ -44,6 +45,7 @@ class Game:
 		init_pygame()
 		init_display()
 		init_font()
+		set_caption(self.name)
 
 		self.window = window_size
 		self.__is_initialized = True
@@ -64,7 +66,7 @@ class Game:
 
 
 class Clock:
-	__elapsed: float
+	__elapsed = 0.0
 	__clock = PyClock()
 
 	def tick_busy_loop(self, framerate=0) -> int:
@@ -78,7 +80,7 @@ class Clock:
 		return tick
 
 	@property
-	def elased(self) -> float:
+	def elapsed(self) -> float:
 		return self.__elapsed
 
 	@property
